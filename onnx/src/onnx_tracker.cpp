@@ -101,7 +101,7 @@ bool OnnxProcessor::init(rclcpp::Node::SharedPtr& node)
         }
         else
         {
-             RCLCPP_ERROR(_node->get_logger(),"Onnx: unknown image processing type: %s", imageProcessingType);
+             RCLCPP_ERROR(_node->get_logger(),"Onnx: unknown image processing type: %s", imageProcessingType.c_str());
             // default;
         }
     }
@@ -267,6 +267,7 @@ void OnnxProcessor::DumpParameters()
 
     // print number of model input nodes
     size_t num_input_nodes = _session->GetInputCount();
+
     std::vector<const char*> input_node_names;
     input_node_names.resize(num_input_nodes);
     std::vector<int64_t> input_node_dims;  // simplify... this model has only 1 input node {1, 3, 224, 224}.
@@ -277,7 +278,7 @@ void OnnxProcessor::DumpParameters()
     // iterate over all input nodes
     for (int i = 0; i < num_input_nodes; i++) {
         // print input node names
-        char* input_name = _session->GetInputName(i, *_allocator);
+        char* input_name = _session->GetInputNameAllocated (i, *_allocator).get();
         printf("Input %d : name=%s\n", i, input_name);
         input_node_names[i] = input_name;
 
@@ -308,7 +309,7 @@ void OnnxProcessor::DumpParameters()
     // iterate over all output nodes
     for (int i = 0; i < num_output_nodes; i++) {
         // print output node names
-        char* output_name = _session->GetOutputName(i, *_allocator);
+        char* output_name = _session->GetOutputNameAllocated(i, *_allocator).get();
         printf("Output %d : name=%s\n", i, output_name);
         output_node_names[i] = output_name;
 
